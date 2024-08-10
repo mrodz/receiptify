@@ -1,9 +1,12 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
 
 import { TextField, Button, Link } from "@mui/material"
 import "./Login.css"
 
 function Login() {
+  const navigate = useNavigate()
+  
   return (
     <div className="login-container">
         <Button>Log in with Google</Button>
@@ -12,7 +15,7 @@ function Login() {
         <TextField className="login-field" label="Username" type="text"></TextField>
         <div className="password-container">
             <TextField className="login-field" label="Password" type="password"></TextField>
-            <Button>Forgot your password?</Button>
+            <Button onClick={() => navigate("/login/reset")}>Forgot your password?</Button>
         </div>
 
         <Button>Log in</Button>

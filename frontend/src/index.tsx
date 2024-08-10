@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import './index.css';
 import App from './App';
 import Login from './pages/login/Login';
+import PasswordReset from './pages/password_reset/PasswordReset';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -16,6 +17,7 @@ root.render(
       <Routes>
         <Route path="/" element={<App/>}></Route>
         <Route path="/login" element={<Login/>}></Route>
+        <Route path="/login/reset" element={<PasswordReset/>}></Route>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
