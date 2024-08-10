@@ -1,4 +1,5 @@
 Fixes #replace_this_text_with_the_issue_number
+<!-- keep this ^^^ and it will manually copy the labels and project info from the issue -->
 
 ### What changes did you make?
   -
