@@ -5,7 +5,7 @@ import "./Login.css"
 import google from '../../assets/google.svg'
 import github from '../../assets/github.svg'
 import { FormEvent, useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { GithubAuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase";
 
 function Login() {
@@ -15,6 +15,36 @@ function Login() {
   const [usernameError, setUsernameError] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [firebaseError, setFirebaseError] = useState<string | null>(null)
+
+  const handleLoginError = (e: any) => {
+    if (e !== null && typeof e === 'object' && 'name' in e && e.name === "FirebaseError") {
+      if (!('code' in e)) {
+        console.error('NO CODE', e);
+        setFirebaseError('Unknown firebase error');
+        return;
+      }
+
+      switch (e.code) {
+        case 'auth/invalid-credential':
+          setFirebaseError('This username/password combination is not correct');
+          setUsernameError('Bad Credential');
+          setPasswordError('Bad Credential');
+          break;
+        case 'auth/account-exists-with-different-credential':
+          setFirebaseError('An account already exists with this email, but a different sign in method');
+          setUsernameError('You have already used this email with another sign in method!');
+          setPasswordError(null);
+          break;
+        // add more error cases here later
+        default:
+          console.error(e);
+          setFirebaseError('Unknown firebase error');
+      }
+    } else {
+      console.error(e);
+      setFirebaseError(`Could not sign you in: ${JSON.stringify(e)}`)
+    }
+  }
 
   const formSubmission = async (e: FormEvent) => {
     e.preventDefault()
@@ -44,28 +74,29 @@ function Login() {
 
       navigate('/profile')
     } catch (e) {
-      if (e !== null && typeof e === 'object' && 'name' in e && e.name === "FirebaseError") {
-        if (!('code' in e)) {
-          console.error(e);
-          setFirebaseError('Unknown firebase error');
-          return;
-        }
+      handleLoginError(e);
+    }
+  }
 
-        switch (e.code) {
-          case 'auth/invalid-credential':
-            setFirebaseError('This username/password combination is not correct');
-            setUsernameError('Bad Credential');
-            setPasswordError('Bad Credential');
-            break;
-          // add more error cases here later
-          default:
-            console.error(e);
-            setFirebaseError('Unknown firebase error');
-        }
-      } else {
-        console.error(e);
-        setFirebaseError(`Could not sign you in: ${JSON.stringify(e)}`)
-      }
+  const googleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+
+    try {
+      await signInWithPopup(auth, provider);
+      navigate('/profile')
+    } catch (e) {
+      handleLoginError(e);
+    }
+  }
+
+  const githubLogin = async () => {
+    const provider = new GithubAuthProvider();
+
+    try {
+      await signInWithPopup(auth, provider);
+      navigate('/profile');
+    } catch (e) {
+      handleLoginError(e);
     }
   }
 
@@ -109,11 +140,11 @@ function Login() {
           </div>
 
           <div className="grid max-lg:grid-rows-2 lg:grid-cols-2 w-4/5 sm:w-2/5 md:w-3/5">
-            <Button variant="outlined" className="grid grid-cols-[1fr_auto] gap-3">
+            <Button onClick={googleLogin} variant="outlined" className="grid grid-cols-[1fr_auto] gap-3">
               <img className="w-8" src={google} />
               Sign in with Google
             </Button>
-            <Button variant="outlined" className="grid grid-cols-[1fr_auto] gap-3">
+            <Button onClick={githubLogin} variant="outlined" className="grid grid-cols-[1fr_auto] gap-3">
               <img className="w-8" src={github} />
               Sign in in with GitHub
             </Button>
