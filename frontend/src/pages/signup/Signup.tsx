@@ -3,15 +3,17 @@ import { TextField, Button, Link, Card, Typography, FormControl, FormHelperText 
 
 import google from '../../assets/google.svg'
 import github from '../../assets/github.svg'
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { createUserWithEmailAndPassword, GithubAuthProvider, GoogleAuthProvider, signInWithPopup, validatePassword } from "firebase/auth";
-import { auth } from "../../firebase";
+import { auth, validatePasswordCharacters } from "../../firebase";
 
 function Signup() {
 	const navigate = useNavigate()
-	const [username, setUsername] = useState('')
-	const [password, setPassword] = useState('')
-	const [confirmPassword, setConfirmPassword] = useState('')
+
+	const username = useRef<HTMLInputElement>();
+	const password = useRef<HTMLInputElement>();
+	const confirmPassword = useRef<HTMLInputElement>();
+
 	const [usernameError, setUsernameError] = useState<string | null>(null)
 	const [passwordError, setPasswordError] = useState<string | null>(null)
 	const [firebaseError, setFirebaseError] = useState<string | null>(null)
@@ -41,10 +43,15 @@ function Signup() {
 					setFirebaseError(null)
 					setPasswordError(null)
 					break;
+				case 'auth/email-already-in-use':
+					setUsernameError('This email is already in use');
+					setFirebaseError('Please use another email');
+					setPasswordError(null);
+					break;
 				// add more error cases here later
 				default:
 					console.error(e);
-					setFirebaseError('Unknown firebase error');
+					setFirebaseError(`Unknown 	error: ${e.code}`);
 			}
 		} else {
 			console.error(e);
@@ -57,38 +64,33 @@ function Signup() {
 
 		let errors = 0
 
-		if (!username) {
+		if (!username.current?.value) {
 			setUsernameError('Username cannot be empty')
 			errors++
 		} else {
 			setUsernameError(null)
 		}
 
-		const symbols: string[]  = [
-			"!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "+", "[", "{", "}", "]", "\\", "|",
-			":", ";", "\"", "'", "<", ",", ">", ".", "/", "?"
-		]
-
-		if (!password) {
+		if (!password.current?.value) {
 			setPasswordError('Password cannot be empty')
 			errors++
-		} else if (password.length < 6) {
+		} else if (password.current.value.length < 6) {
 			setPasswordError('Password length must be at least 6 characters')
 			errors++
-		} else if (!Array.from(password).some((character: string, _, __) => symbols.includes(character))) {
-			setPasswordError('Password must contain at least one symbol')
+		} else if (!validatePasswordCharacters(password.current.value)) {
+			setPasswordError('Password must contain at least one lowercase letter, uppercase letter, digit, and symbol without spaces')
 			errors++
-		} else if (!(await validatePassword(auth, password)).isValid) {
+		} else if (!(await validatePassword(auth, password.current.value)).isValid) {
 			setPasswordError('This is not a valid password')
 			errors++
 		} else {
 			setPasswordError(null)
 		}
 
-		if (!confirmPassword) {
+		if (!confirmPassword.current?.value) {
 			setConfirmPasswordError('Password confirmation cannot be empty')
 			errors++
-		} else if (password !== confirmPassword) {
+		} else if (password.current!.value !== confirmPassword.current.value) {
 			setConfirmPasswordError('Passwords do not match')
 			errors++
 		} else {
@@ -98,11 +100,11 @@ function Signup() {
 		if (errors !== 0) return
 
 		try {
-			const credential = await createUserWithEmailAndPassword(auth, username, password)
+			const credential = await createUserWithEmailAndPassword(auth, username.current!.value, password.current!.value)
 
 			console.log(credential.user)
 
-			navigate('/profile')
+			navigate('/verify')
 		} catch (e) {
 			handleLoginError(e);
 		}
@@ -132,7 +134,7 @@ function Signup() {
 
 	return (
 		<main className="flex items-center justify-center h-full">
-			<Card className="p-8 w-6/7 sm:w-2/3 md:w-1/2 max-w-4xl">
+			<Card className="receiptify-principle-card">
 				<Typography className="text-center" variant="h3" component="h1" gutterBottom>
 					<span className="max-sm:hidden">
 						Create Account:&nbsp;
@@ -144,7 +146,7 @@ function Signup() {
 					<div className="w-4/5 sm:w-2/5 md:w-3/5">
 						<FormControl fullWidth error={!!usernameError}>
 							<TextField
-								onChange={(e) => setUsername(e.target.value)}
+								inputRef={username}
 								fullWidth
 								label="Email"
 								type="text"
@@ -156,7 +158,7 @@ function Signup() {
 
 						<FormControl className="!my-4" fullWidth error={!!passwordError}>
 							<TextField
-								onChange={(e) => setPassword(e.target.value)}
+								inputRef={password}
 								fullWidth
 								label="Password"
 								type="password"
@@ -167,7 +169,7 @@ function Signup() {
 
 						<FormControl fullWidth error={!!confirmPasswordError}>
 							<TextField
-								onChange={(e) => setConfirmPassword(e.target.value)}
+								inputRef={confirmPassword}
 								fullWidth
 								label="Confirm Password"
 								type="password"
@@ -189,7 +191,7 @@ function Signup() {
 					</div>
 
 					<FormControl error={!!firebaseError}>
-						<Button variant="contained" type="submit">Log in</Button>
+						<Button variant="contained" type="submit">Create Account</Button>
 						{!!firebaseError && <FormHelperText>{firebaseError}</FormHelperText>}
 					</FormControl>
 

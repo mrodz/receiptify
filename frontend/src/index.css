@@ -7,3 +7,7 @@ body,
 #root {
 	@apply h-full overflow-hidden;
 }
+
+.receiptify-principle-card {
+	@apply p-8 w-5/6 sm:w-2/3 md:w-1/2 max-w-4xl
+}

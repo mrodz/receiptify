@@ -10,6 +10,7 @@ import './firebase.ts'
 
 import './index.css'
 import Profile from './pages/profile/Profile.tsx'
+import Verify from './pages/verify/Verify.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/login" element={<Login />} />
         <Route path="/login/reset" element={<PasswordReset />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/verify" element={<Verify />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>

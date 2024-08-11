@@ -4,14 +4,14 @@ import { TextField, Button, Link, Card, Typography, FormControl, FormHelperText 
 import "./Login.css"
 import google from '../../assets/google.svg'
 import github from '../../assets/github.svg'
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { GithubAuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase";
 
 function Login() {
   const navigate = useNavigate()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const username = useRef<HTMLInputElement>();
+  const password = useRef<HTMLInputElement>()
   const [usernameError, setUsernameError] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [firebaseError, setFirebaseError] = useState<string | null>(null)
@@ -56,14 +56,14 @@ function Login() {
 
     let errors = 0
 
-    if (!username) {
+    if (!username.current?.value) {
       setUsernameError('Username cannot be empty')
       errors++
     } else {
       setUsernameError(null)
     }
 
-    if (!password) {
+    if (!password.current?.value) {
       setPasswordError('Password cannot be empty')
       errors++
     } else {
@@ -73,7 +73,7 @@ function Login() {
     if (errors !== 0) return
 
     try {
-      const credential = await signInWithEmailAndPassword(auth, username, password)
+      const credential = await signInWithEmailAndPassword(auth, username.current!.value, password.current!.value)
 
       console.log(credential.user)
 
@@ -107,7 +107,7 @@ function Login() {
 
   return (
     <main className="flex items-center justify-center h-full">
-      <Card className="p-8 w-6/7 sm:w-2/3 md:w-1/2 max-w-4xl">
+      <Card className="receiptify-principle-card">
         <Typography className="text-center" variant="h3" component="h1" gutterBottom>
           <span className="max-sm:hidden">
             Sign in to&nbsp;
@@ -119,7 +119,7 @@ function Login() {
           <div className="w-4/5 sm:w-2/5 md:w-3/5">
             <FormControl fullWidth error={!!usernameError}>
               <TextField
-                onChange={(e) => setUsername(e.target.value)}
+                inputRef={username}
                 fullWidth
                 label="Email"
                 type="text"
@@ -132,7 +132,7 @@ function Login() {
             <div className="flex flex-col mt-4">
               <FormControl fullWidth error={!!passwordError}>
                 <TextField
-                  onChange={(e) => setPassword(e.target.value)}
+                  inputRef={password}
                   fullWidth
                   label="Password"
                   type="password"

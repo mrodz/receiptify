@@ -16,4 +16,12 @@ export const auth = getAuth(app)
 
 auth.setPersistence(browserLocalPersistence);
 
+/**
+ * @param {string} password to validate
+ * @returns Whether the password contains at least one number, uppercase, lowercase, and non-alphanumeric without spaces 
+ */
+export const validatePasswordCharacters = (password: string): boolean => {
+	return /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])([^\s]){6,}$/.test(password)
+}
+
 export default app
