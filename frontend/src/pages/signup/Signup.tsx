@@ -64,11 +64,19 @@ function Signup() {
 			setUsernameError(null)
 		}
 
+		const symbols: string[]  = [
+			"!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "+", "[", "{", "}", "]", "\\", "|",
+			":", ";", "\"", "'", "<", ",", ">", ".", "/", "?"
+		]
+
 		if (!password) {
 			setPasswordError('Password cannot be empty')
 			errors++
 		} else if (password.length < 6) {
 			setPasswordError('Password length must be at least 6 characters')
+			errors++
+		} else if (!Array.from(password).some((character: string, _, __) => symbols.includes(character))) {
+			setPasswordError('Password must contain at least one symbol')
 			errors++
 		} else if (!(await validatePassword(auth, password)).isValid) {
 			setPasswordError('This is not a valid password')
