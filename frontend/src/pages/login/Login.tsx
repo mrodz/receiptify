@@ -35,6 +35,11 @@ function Login() {
           setUsernameError('You have already used this email with another sign in method!');
           setPasswordError(null);
           break;
+        case 'auth/invalid-email':
+          setUsernameError('This is not a valid email');
+          setFirebaseError(null)
+          setPasswordError(null)
+          break;
         // add more error cases here later
         default:
           console.error(e);
@@ -116,7 +121,7 @@ function Login() {
               <TextField
                 onChange={(e) => setUsername(e.target.value)}
                 fullWidth
-                label="Username"
+                label="Email"
                 type="text"
                 autoComplete="username"
               />

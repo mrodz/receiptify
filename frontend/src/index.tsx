@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import App from './App.tsx'
 import Login from './pages/login/Login.tsx'
+import SignUp from './pages/signup/Signup.tsx'
 import PasswordReset from './pages/password_reset/PasswordReset.tsx'
 
 import './firebase.ts'
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/login/reset" element={<PasswordReset />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
