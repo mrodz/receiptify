@@ -3,8 +3,10 @@ import { useLocation } from "react-router-dom";
 import React from "react";
 import { ReactNode, useEffect, useState } from "react";
 import type { User } from "firebase/auth";
-import { Box, Tabs, Tab, Divider, Card } from "@mui/material";
+import { Box, Tabs, Tab } from "@mui/material";
 import {Receipt} from "./receipt";
+import AllReceipts from "./tabs/AllReceipts";
+import SpendingHabits from "./tabs/SpendingHabits";
 
 function Statistics() {
 	const location = useLocation();
@@ -60,8 +62,15 @@ function StatisticsPage() {
         {
             timestamp: new Date(50),
             items: [
+                { name: "Milk", cost: 20, category: "Drink" },
+                { name: "Water", cost: 20, category: "Drink" }
+            ],
+        },
+        {
+            timestamp: new Date(Date.now() - 1000),
+            items: [
                 { name: "Cookies", cost: 20, category: "Food" },
-                { name: "Cookies", cost: 20, category: "Food" }
+                { name: "OJ", cost: 45, category: "Drink" }
             ],
         },
     ])
@@ -89,30 +98,10 @@ function StatisticsPage() {
                 </Tabs>
             </Box>
             <TabPanel index={0} visibleIndex={visibleIndex}>
-                {
-                    receipts?.map((receipt, i) => {
-                        return (
-                            <Card key={i} sx={{marginBottom: 2}}>
-                                <Box padding={2}>
-                                    <span>Receipt scanned on {receipt.timestamp.toDateString()} at {receipt.timestamp.toTimeString()}</span>
-                                </Box>
-                                <Divider></Divider>
-                                {
-                                    receipt.items.map((item, i) => {
-                                        return (
-                                            <Box key={i} paddingLeft={2}>
-                                                <span>Bought {item.name} for ${(item.cost / 100).toLocaleString("en", { minimumFractionDigits: 2 })} ({item.category})</span>
-                                            </Box>
-                                        )
-                                    })
-                                }
-                            </Card>
-                        )
-                    })
-                }
+                <AllReceipts receipts={receipts}/>
             </TabPanel>
             <TabPanel index={1} visibleIndex={visibleIndex}>
-                <div></div>
+                <SpendingHabits receipts={receipts}/>
             </TabPanel>
             <TabPanel index={2} visibleIndex={visibleIndex}>
                 <div></div>
