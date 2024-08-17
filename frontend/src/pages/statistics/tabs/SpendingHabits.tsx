@@ -5,16 +5,21 @@ import React from "react";
 import { Receipt } from "../receipt";
 
 function CategorySpendingPie(props: { receipts: Receipt[] }) {
-    const [targetMonth, setTargetMonth] = React.useState<number>(0)
+    function getMonthDifference(start: Date, end: Date) {
+        const difference = new Date(end.getTime() - start.getTime())
+        const months = (11 - difference.getMonth()) + (difference.getUTCFullYear() - 1970) * 12
+
+        return months
+    }
+
+    const [targetMonth, setTargetMonth] = React.useState<number>(0) // number of months before Today
     
-    const now =  Date.now()
+    const now: Date = new Date(Date.now())
     const categoryData: {[key: string]: number} = {}
-    let totalPrice = 0
+    let totalPrice: number = 0
    
     for (const receipt of props.receipts) {
-        const date = receipt.timestamp
-        const difference = new Date(now - date.getTime())
-        const months = (11 - difference.getMonth()) + (difference.getUTCFullYear() - 1970) * 12
+        const months = getMonthDifference(receipt.timestamp, now)
 
         if (months !== targetMonth)
             continue
@@ -29,11 +34,19 @@ function CategorySpendingPie(props: { receipts: Receipt[] }) {
         }
     }
 
-    const data: PieValueType[] = []
+    const chartData: PieValueType[] = []
     let id = 0
 
     for (const key in categoryData) {
-        data.push({ id: id++, label: key, value: categoryData[key] })
+        chartData.push({ id: id++, label: key, value: categoryData[key] })
+    }
+
+    const monthOptions: {[key: string]: Date} = {}
+
+    for (const receipt of props.receipts) {
+        const months = getMonthDifference(receipt.timestamp, now)
+
+        monthOptions[months] = receipt.timestamp
     }
 
     return (
@@ -41,9 +54,15 @@ function CategorySpendingPie(props: { receipts: Receipt[] }) {
             <Box>
                 <Typography>Spending by category </Typography>
                 <Select value={targetMonth} onChange={e => setTargetMonth(e.target.value as number)}>
-                    <MenuItem value={0}>This Month</MenuItem>
                     {
+                        Object.keys(monthOptions).map(Number).sort().map((monthIndex, i) => {
+                            const date: Date = monthOptions[monthIndex]
+                            const formatOptions: Intl.DateTimeFormatOptions = { month: "long", year: "numeric" }
 
+                            return (
+                                <MenuItem key={i} value={monthIndex}>{date.toLocaleDateString(undefined, formatOptions)}</MenuItem>
+                            )
+                        })
                     }
                 </Select>
             </Box>
@@ -52,9 +71,9 @@ function CategorySpendingPie(props: { receipts: Receipt[] }) {
                 series={
                     [
                         {
-                            data,
+                            data: chartData,
                             arcLabel: item => `${item.label} ${(100 * item.value / totalPrice).toFixed(1)}%`,
-                            arcLabelMinAngle: 30
+                            arcLabelMinAngle: 40
                         }
                     ]
                 }/>

@@ -8,9 +8,9 @@ import {Receipt} from "./receipt";
 import AllReceipts from "./tabs/AllReceipts";
 import SpendingHabits from "./tabs/SpendingHabits";
 
-function Statistics() {
-	const location = useLocation();
+import stats from "./temporaryStats";
 
+function Statistics() {
 	const [currentUser, setCurrentUser] = useState<User | null | 'loading'>('loading');
 
 	useEffect(() => {
@@ -43,37 +43,7 @@ function TabPanel(props: { children: ReactNode, index: number, visibleIndex: num
 
 function StatisticsPage() {
     const [visibleIndex, setVisibleIndex] = React.useState(0)
-
-    const [receipts, setReceipts] = React.useState<Receipt[]>([ // for testing until #21 goes through
-        {
-            timestamp: new Date(0),
-            items: [
-                { name: "Cookies", cost: 20, category: "Food" },
-                { name: "Cookies", cost: 20, category: "Food" }
-            ],
-        },
-        {
-            timestamp: new Date(200),
-            items: [
-                { name: "Cookies", cost: 20, category: "Food" },
-                { name: "Cookies", cost: 20, category: "Food" }
-            ],
-        },
-        {
-            timestamp: new Date(50),
-            items: [
-                { name: "Milk", cost: 20, category: "Drink" },
-                { name: "Water", cost: 20, category: "Drink" }
-            ],
-        },
-        {
-            timestamp: new Date(Date.now() - 1000),
-            items: [
-                { name: "Cookies", cost: 20, category: "Food" },
-                { name: "OJ", cost: 45, category: "Drink" }
-            ],
-        },
-    ])
+    const [receipts, setReceipts] = React.useState<Receipt[]>(stats) // for testing until #21 goes through
     const [sortMethod, setSortMethod] = React.useState("newest")
 
     useEffect(() => {
