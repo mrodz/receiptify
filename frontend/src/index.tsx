@@ -22,7 +22,6 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/login/reset" element={<PasswordReset />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/camera" element={<Camera />} />
-        <Route path="/receipt/upload" element={<Upload />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
