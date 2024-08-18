@@ -6,6 +6,8 @@ import admin from 'firebase-admin';
 import { https } from "firebase-functions/v2";
 import { defineSecret } from 'firebase-functions/params';
 import { createPresignedUrlWithoutClient, PresignedUrlInput } from './s3';
+import OpenAI from 'openai';
+import { Threads } from 'openai/resources/beta/threads/threads';
 
 admin.initializeApp();
 
@@ -28,14 +30,17 @@ const AWS_SECRET_ACCESS_KEY = defineSecret('AWS_FIREBASE_FUNCTION_RECEIPT_CRUD_A
 
 const AWS_RECEIPT_BUCKET = defineSecret('AWS_RECEIPT_BUCKET');
 
-export const getReceiptUploadPresignUrl = https.onCall({
+const OPENAI_API_KEY = defineSecret("OPENAI_API_KEY")
+const OPENAI_ASSISTANT_ID = defineSecret("OPENAI_ASSISTANT_ID")
+
+export const uploadReceiptImage = https.onCall({
 	secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_RECEIPT_BUCKET]
 }, async (request) => {
 	if (!request.auth) throw new https.HttpsError(
 		'unauthenticated',
 		'You have to be signed in to upload a receipt',
 	)
-
+	
 	// safe
 	const uid = request.auth.uid;
 
@@ -54,6 +59,32 @@ export const getReceiptUploadPresignUrl = https.onCall({
 	} satisfies PresignedUrlInput;
 
 	const presignedUrl = await createPresignedUrlWithoutClient(input)
+
+	let image = new Image()
+	image.src = request.data.Image
+	// hmmm.. onload?
+	// upload to s3
+
+	const client = new OpenAI({ apiKey: OPENAI_API_KEY.value() })
+	const thread = await client.beta.threads.create()
+	await client.beta.threads.messages.create(thread.id, {
+		role: "user", 
+		content: [
+			{
+				type: "image_url",
+				image_url: {
+					detail: "auto",
+					url: ""
+				}
+			}
+		]
+	})
+	const run = await client.beta.threads.runs.createAndPoll(thread.id, { assistant_id: OPENAI_ASSISTANT_ID.value() })
+
+	const receiptData = { timestamp: Date.now(), items: [] }
+
+	// by some means, categorize each item into a finite set of categories (TDB)
+	// need further testing to determine how to normalize
 
 	return {
 		presignedUrl,
