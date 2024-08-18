@@ -1,5 +1,7 @@
+import { Dayjs } from "dayjs"
+
 interface Receipt {
-    timestamp: Date,
+    timestamp: Dayjs,
     items: ReceiptItem[],
 }
 

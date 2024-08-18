@@ -10,7 +10,7 @@ function AllReceipts(props: { receipts: Receipt[] }) {
                 return (
                     <Card key={i} sx={{marginBottom: 2}}>
                         <Box padding={2}>
-                            <span>Receipt scanned on {receipt.timestamp.toDateString()} at {receipt.timestamp.toTimeString()}</span>
+                            <span>Receipt scanned on {receipt.timestamp.toString()}</span>
                         </Box>
                         <Divider></Divider>
                         {

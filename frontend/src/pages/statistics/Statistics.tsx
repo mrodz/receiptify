@@ -1,5 +1,4 @@
 import { auth } from "../../firebase";
-import { useLocation } from "react-router-dom";
 import React from "react";
 import { ReactNode, useEffect, useState } from "react";
 import type { User } from "firebase/auth";
@@ -49,10 +48,10 @@ function StatisticsPage() {
     useEffect(() => {
         switch (sortMethod) {
             default: // consider "newest" the default and anything else just redirects to it
-                setReceipts(r => r.sort((r1, r2) => (r1.timestamp.getMilliseconds() > r2.timestamp.getMilliseconds()) ? 1 : -1))
+                setReceipts(r => r.sort((r1, r2) => (r1.timestamp.millisecond() > r2.timestamp.millisecond()) ? 1 : -1))
                 break;
             case "oldest":
-                setReceipts(r => r.sort((r1, r2) => (r1.timestamp.getMilliseconds() < r2.timestamp.getMilliseconds()) ? 1 : -1))
+                setReceipts(r => r.sort((r1, r2) => (r1.timestamp.millisecond() < r2.timestamp.millisecond()) ? 1 : -1))
                 break;
         }
     }, [sortMethod])
