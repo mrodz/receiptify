@@ -9,6 +9,7 @@ import './firebase.ts'
 
 import './index.css'
 import Profile from './pages/profile/Profile.tsx'
+import Upload from './pages/receipts/Upload.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/login" element={<Login />} />
         <Route path="/login/reset" element={<PasswordReset />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/receipt/upload" element={<Upload />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app"
 import { browserLocalPersistence, getAuth } from "firebase/auth"
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const firebaseConfig = {
 	apiKey: import.meta.env.VITE_PUBLIC_FIREBASE_API_KEY,
@@ -15,5 +16,11 @@ const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
 
 auth.setPersistence(browserLocalPersistence);
+
+const functionsBridge = getFunctions(app);
+
+export namespace functions {
+	export const getReceiptUploadPresignUrl = httpsCallable<undefined, { presignedUrl: string; resourceName: string; }>(functionsBridge, 'getReceiptUploadPresignUrl', { timeout: 5000 })
+}
 
 export default app
